@@ -1,0 +1,2 @@
+/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt
+/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt

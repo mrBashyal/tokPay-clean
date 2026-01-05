@@ -1,0 +1,4 @@
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/Debug/3q1q67m4/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/foo.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/Debug/3q1q67m4/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/boo.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/Debug/3q1q67m4/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/edit_cache.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/Debug/3q1q67m4/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/rebuild_cache.dir

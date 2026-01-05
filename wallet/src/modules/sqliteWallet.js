@@ -56,6 +56,11 @@ export const initDatabase = async () => {
  */
 export const getBalance = async () => {
   try {
+    // Ensure database is initialized before querying
+    if (!db) {
+      await initDatabase();
+    }
+
     // Query the most recent balance from offline_wallet table
     const [result] = await db.executeSql(
       'SELECT balance FROM offline_wallet ORDER BY id DESC LIMIT 1'
@@ -79,6 +84,11 @@ export const getBalance = async () => {
  */
 export const addMoney = async (amount) => {
   try {
+    // Ensure database is initialized before operations
+    if (!db) {
+      await initDatabase();
+    }
+
     // Validate that amount is positive
     if (amount <= 0) {
       throw new Error('Amount must be greater than 0');
@@ -116,6 +126,11 @@ export const addMoney = async (amount) => {
  */
 export const deductMoney = async (amount) => {
   try {
+    // Ensure database is initialized before operations
+    if (!db) {
+      await initDatabase();
+    }
+
     // Validate that amount is positive
     if (amount <= 0) {
       throw new Error('Amount must be greater than 0');
@@ -157,6 +172,11 @@ export const deductMoney = async (amount) => {
  */
 export const getTransactions = async () => {
   try {
+    // Ensure database is initialized before querying
+    if (!db) {
+      await initDatabase();
+    }
+
     // Query all transactions ordered by timestamp in descending order (newest first)
     const [result] = await db.executeSql(
       'SELECT * FROM transactions ORDER BY timestamp DESC'

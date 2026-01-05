@@ -1,0 +1,1 @@
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/build/intermediates/cxx/Debug/3q1q67m4/obj/x86

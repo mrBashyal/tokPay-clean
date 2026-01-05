@@ -11,7 +11,7 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import {buildQrPayload, encodeQrPayload} from '../modules/qrPayload';
 
-const ReceiveScreen = () => {
+const ReceiveScreen = ({navigation}) => {
   const [qrData, setQrData] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({deviceId: '', deviceName: ''});
   const [isLoading, setIsLoading] = useState(true);
@@ -73,8 +73,10 @@ const ReceiveScreen = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.title}>Receive Payment</Text>
-        <Text style={styles.subtitle}>Show this QR code to the payer</Text>
+        <Text style={styles.title}>Receive Money</Text>
+        <Text style={styles.instructionText}>
+          Ask the sender to scan this QR code.
+        </Text>
       </View>
 
       {/* QR Code Display */}
@@ -113,6 +115,13 @@ const ReceiveScreen = () => {
       {/* Refresh Button */}
       <TouchableOpacity style={styles.refreshButton} onPress={handleRefreshQr}>
         <Text style={styles.refreshButtonText}>🔄 Refresh QR Code</Text>
+      </TouchableOpacity>
+
+      {/* Back to Home Button */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={() => navigation.navigate('Home')}>
+        <Text style={styles.backButtonText}>← Back to Home</Text>
       </TouchableOpacity>
 
       {/* Info Card */}
@@ -158,15 +167,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#FFF',
-    marginBottom: 5,
+    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 14,
+  instructionText: {
+    fontSize: 15,
     color: '#FFF',
-    opacity: 0.9,
+    opacity: 0.95,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   qrContainer: {
     marginTop: 30,
@@ -249,6 +260,20 @@ const styles = StyleSheet.create({
   },
   refreshButtonText: {
     color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  backButton: {
+    marginTop: 10,
+    backgroundColor: '#FFF',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  backButtonText: {
+    color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
   },

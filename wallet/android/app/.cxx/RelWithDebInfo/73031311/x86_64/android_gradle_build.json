@@ -1,0 +1,54 @@
+{
+  "buildFiles": [
+    "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
+    "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/ayush/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/ayush/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "appmodules::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "appmodules",
+      "output": "/home/ayush/Desktop/tokpay basic app/wallet/android/app/build/intermediates/cxx/RelWithDebInfo/73031311/obj/x86_64/libappmodules.so",
+      "runtimeFiles": [
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b85f62a599074afc3b2ec6cfb7884973/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b6cf5fe63d7843ed031aa3363c7fc617/transformed/react-android-0.83.1-release/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b6cf5fe63d7843ed031aa3363c7fc617/transformed/react-android-0.83.1-release/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
+      ]
+    },
+    "react_codegen_safeareacontext::@7984cd80db47aa7b952a": {
+      "toolchain": "toolchain",
+      "abi": "x86_64",
+      "artifactName": "react_codegen_safeareacontext",
+      "output": "/home/ayush/Desktop/tokpay basic app/wallet/android/app/build/intermediates/cxx/RelWithDebInfo/73031311/obj/x86_64/libreact_codegen_safeareacontext.so",
+      "runtimeFiles": [
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b85f62a599074afc3b2ec6cfb7884973/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.x86_64/libfbjni.so",
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b6cf5fe63d7843ed031aa3363c7fc617/transformed/react-android-0.83.1-release/prefab/modules/jsi/libs/android.x86_64/libjsi.so",
+        "/home/ayush/.gradle/caches/9.0.0/transforms/b6cf5fe63d7843ed031aa3363c7fc617/transformed/react-android-0.83.1-release/prefab/modules/reactnative/libs/android.x86_64/libreactnative.so"
+      ]
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

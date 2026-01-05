@@ -1,0 +1,6 @@
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/appmodules.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/safeareacontext_autolinked_build/CMakeFiles/react_codegen_safeareacontext.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/safeareacontext_autolinked_build/CMakeFiles/edit_cache.dir
+/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/safeareacontext_autolinked_build/CMakeFiles/rebuild_cache.dir
