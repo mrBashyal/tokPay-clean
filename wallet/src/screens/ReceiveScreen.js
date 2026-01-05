@@ -1,53 +1,116 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  Alert,
-  ActivityIndicator,
   ScrollView,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import {buildQrPayload, encodeQrPayload} from '../modules/qrPayload';
 
-const ReceiveScreen = ({navigation}) => {
-  const [qrData, setQrData] = useState('');
-  const [deviceInfo, setDeviceInfo] = useState({deviceId: '', deviceName: ''});
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState(null);
+const ReceiveScreen = () => {
+  // Static QR data for demo - hardcoded wallet ID
+  const qrData = JSON.stringify({
+    walletId: 'TOKPAY_USER_001',
+  });
 
-  // Generate QR code on mount
-  useEffect(() => {
-    generateQrCode();
-  }, []);
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Receive Money</Text>
+        <Text style={styles.instructions}>
+          Show this QR to receive money
+        </Text>
+      </View>
 
-  /**
-   * Generate new QR code with current timestamp and device info
-   * Called on mount and when user manually refreshes
-   */
-  const generateQrCode = async () => {
-    try {
-      setIsLoading(true);
+      {/* QR Code Display */}
+      <View style={styles.qrContainer}>
+        <QRCode
+          value={qrData}
+          size={250}
+          backgroundColor="white"
+          color="black"
+        />
+      </View>
 
-      // Build payload object with device info, BLE UUID, timestamp, nonce
-      const payload = await buildQrPayload();
+      {/* Wallet ID Display */}
+      <View style={styles.walletInfoContainer}>
+        <Text style={styles.walletIdLabel}>Wallet ID</Text>
+        <Text style={styles.walletId}>TOKPAY_USER_001</Text>
+      </View>
+    </ScrollView>
+  );
+};
 
-      // Encode payload to JSON string for QR code
-      const encodedPayload = encodeQrPayload(payload);
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  contentContainer: {
+    alignItems: 'center',
+    paddingBottom: 30,
+  },
+  header: {
+    width: '100%',
+    backgroundColor: '#007AFF',
+    padding: 20,
+    paddingTop: 60,
+    paddingBottom: 30,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 10,
+  },
+  instructions: {
+    fontSize: 15,
+    color: '#FFF',
+    opacity: 0.95,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  qrContainer: {
+    marginTop: 40,
+    padding: 20,
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  walletInfoContainer: {
+    width: '90%',
+    marginTop: 30,
+    padding: 20,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    alignItems: 'center',
+  },
+  walletIdLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+  },
+  walletId: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+});
 
-      // Update state with QR data and device info for display
-      setQrData(encodedPayload);
-      setDeviceInfo({
-        deviceId: payload.deviceId,
-        deviceName: payload.deviceName,
-      });
-
-      // Record refresh timestamp for display
-      setLastRefresh(new Date());
-
-      setIsLoading(false);
-    } catch (error) {
+export default ReceiveScreen;
       setIsLoading(false);
       Alert.alert('Error', `Failed to generate QR code: ${error.message}`);
     }

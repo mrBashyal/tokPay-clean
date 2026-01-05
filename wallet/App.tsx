@@ -17,6 +17,8 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
+import SendScanScreen from './src/screens/SendScanScreen';
+import SendAmountScreen from './src/screens/SendAmountScreen';
 import ReceiveScreen from './src/screens/ReceiveScreen';
 import WalletTestScreen from './src/screens/WalletTestScreen';
 
@@ -30,6 +32,16 @@ export default function App() {
           name="Home"
           component={HomeScreen}
           options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SendScan"
+          component={SendScanScreen}
+          options={{title: 'Scan QR'}}
+        />
+        <Stack.Screen
+          name="SendAmount"
+          component={SendAmountScreen}
+          options={{title: 'Send Amount'}}
         />
         <Stack.Screen
           name="Receive"

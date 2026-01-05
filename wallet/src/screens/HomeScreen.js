@@ -61,10 +61,10 @@ const HomeScreen = ({navigation}) => {
 
   /**
    * Handle Send Money button press
-   * Placeholder for future send flow
+   * Navigate to SendScanScreen to scan recipient QR
    */
   const handleSendMoney = () => {
-    Alert.alert('Coming Soon', 'Send money feature will be available soon');
+    navigation.navigate('SendScan');
   };
 
   /**

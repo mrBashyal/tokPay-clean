@@ -12,6 +12,78 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
 endif()
 
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/rnasyncstorage-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/ComponentDescriptors.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/EventEmitters.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/Props.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/ShadowNodes.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/react/renderer/components/rnasyncstorage/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/rngesturehandler_codegen-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/ComponentDescriptors.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/EventEmitters.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/Props.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/ShadowNodes.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/react/renderer/components/rngesturehandler_codegen/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/RNGetRandomValuesSpec-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/ComponentDescriptors.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/EventEmitters.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/Props.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/ShadowNodes.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-get-random-values/android/build/generated/source/codegen/jni/react/renderer/components/RNGetRandomValuesSpec/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
 # LIB_CUSTOM_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt:12 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/*.cpp")
 set(OLD_GLOB
@@ -50,6 +122,100 @@ set(OLD_GLOB
   "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/safeareacontext/Props.cpp"
   "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/safeareacontext/ShadowNodes.cpp"
   "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-safe-area-context/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/safeareacontext/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# LIB_CUSTOM_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt:23 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/rnscreens.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# LIB_CUSTOM_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt:23 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSBottomTabsAccessoryShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSBottomTabsShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSBottomTabsState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSFullWindowOverlayShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSModalScreenShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSSafeAreaViewShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSSafeAreaViewState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenShadowNodeCommitHook.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenStackHeaderConfigShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenStackHeaderConfigState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenStackHeaderSubviewShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenStackHeaderSubviewState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSScreenState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/RNSSplitViewScreenShadowNode.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# LIB_CUSTOM_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt:23 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnscreens/utils/*.cpp")
+set(OLD_GLOB
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# LIB_CODEGEN_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt:24 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/ComponentDescriptors.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/EventEmitters.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/Props.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/ShadowNodes.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-screens/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnscreens/States.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:10 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/rnsvg.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:10 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/*.cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGImageShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGImageState.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGLayoutableShadowNode.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGShadowNodes.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/home/ayush/Desktop/tokpay basic app/wallet/android/app/.cxx/RelWithDebInfo/73031311/armeabi-v7a/CMakeFiles/cmake.verify_globs")
+endif()
+
+# rnsvg_codegen_SRCS at /home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:11 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/*cpp")
+set(OLD_GLOB
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/ComponentDescriptors.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/EventEmitters.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/Props.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/ShadowNodes.cpp"
+  "/home/ayush/Desktop/tokpay basic app/wallet/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/States.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
