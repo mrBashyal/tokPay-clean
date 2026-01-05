@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import {initDatabase, getBalance} from '../modules/sqliteWallet';
+import {getBalance} from '../modules/sqliteWallet';
+import {initializeAndGetBalance} from '../modules/walletHelpers';
 
 const HomeScreen = ({navigation}) => {
   const [balance, setBalance] = useState(0);
@@ -29,20 +30,17 @@ const HomeScreen = ({navigation}) => {
 
   /**
    * Initialize database and load current balance
-   * Called on first mount
+   * Called on first mount - uses centralized helper
    */
   const initializeWallet = async () => {
     try {
       setIsLoading(true);
-      // Initialize SQLite database with tables
-      await initDatabase();
-      // Fetch current balance from offline_wallet table
-      const currentBalance = await getBalance();
+      const currentBalance = await initializeAndGetBalance();
       setBalance(currentBalance);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      Alert.alert('Error', `Failed to initialize wallet: ${error.message}`);
+      Alert.alert('Error', error.message);
     }
   };
 
@@ -56,6 +54,7 @@ const HomeScreen = ({navigation}) => {
       setBalance(currentBalance);
     } catch (error) {
       console.error('Error refreshing balance:', error);
+      Alert.alert('Error', 'Failed to refresh balance');
     }
   };
 

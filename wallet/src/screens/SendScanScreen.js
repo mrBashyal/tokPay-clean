@@ -13,6 +13,7 @@ import {
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import {validateQrPayload} from '../modules/walletHelpers';
 
 const SendScanScreen = ({navigation}) => {
   const [scanned, setScanned] = useState(false);
@@ -82,33 +83,20 @@ const SendScanScreen = ({navigation}) => {
         return;
       }
 
-      try {
-        // Mark as scanned to prevent duplicate processing
-        setScanned(true);
+      // Mark as scanned to prevent duplicate processing
+      setScanned(true);
 
-        // Get the first QR code value
-        const qrValue = codes[0].value;
+      // Get the first QR code value
+      const qrValue = codes[0].value;
 
-        // Parse QR data as JSON
-        const qrData = JSON.parse(qrValue);
+      // Validate QR payload using centralized helper
+      const validation = validateQrPayload(qrValue);
 
-        // Validate that walletId exists in parsed data
-        if (!qrData.walletId) {
-          throw new Error('Invalid QR: walletId not found');
-        }
-
-        console.log('QR scanned successfully:', qrData);
-
-        // Navigate to SendAmountScreen with walletId parameter
-        navigation.navigate('SendAmount', {
-          walletId: qrData.walletId,
-        });
-      } catch (error) {
-        // Handle invalid QR data (not JSON or missing fields)
-        console.error('QR scan error:', error);
+      if (!validation.valid) {
+        console.error('QR validation error:', validation.error);
         Alert.alert(
           'Invalid QR Code',
-          'The scanned QR code is not a valid recipient code. Please try again.',
+          validation.error,
           [
             {
               text: 'OK',
@@ -119,7 +107,15 @@ const SendScanScreen = ({navigation}) => {
             },
           ]
         );
+        return;
       }
+
+      console.log('QR scanned successfully:', validation.walletId);
+
+      // Navigate to SendAmountScreen with validated walletId
+      navigation.navigate('SendAmount', {
+        walletId: validation.walletId,
+      });
     },
   });
 

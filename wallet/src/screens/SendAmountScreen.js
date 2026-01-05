@@ -12,64 +12,57 @@ import {
   Platform,
 } from 'react-native';
 import {deductMoney} from '../modules/sqliteWallet';
+import {validateTransactionAmount} from '../modules/walletHelpers';
 
 const SendAmountScreen = ({navigation, route}) => {
-  const {walletId} = route.params;
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Validate amount input
-   * @returns {boolean} True if valid, false otherwise
-   */
-  const validateAmount = () => {
-    // Check if amount is entered
-    if (!amount || amount.trim() === '') {
-      Alert.alert('Invalid Amount', 'Please enter an amount');
-      return false;
+  // Validate navigation params on mount
+  const walletId = route.params?.walletId;
+  
+  React.useEffect(() => {
+    if (!walletId) {
+      Alert.alert('Error', 'Invalid recipient wallet ID', [
+        {text: 'OK', onPress: () => navigation.goBack()},
+      ]);
     }
+  }, [walletId, navigation]);
 
-    // Parse amount to number
-    const numAmount = parseFloat(amount);
-
-    // Check if amount is a valid number
-    if (isNaN(numAmount)) {
-      Alert.alert('Invalid Amount', 'Please enter a valid number');
-      return false;
-    }
-
-    // Check if amount is greater than 0
-    if (numAmount <= 0) {
-      Alert.alert('Invalid Amount', 'Amount must be greater than 0');
-      return false;
-    }
-
-    return true;
-  };
+  // Return early if no valid walletId
+  if (!walletId) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
 
   /**
    * Handle confirm send button press
    * Validates amount, deducts from wallet, and navigates on success
    */
   const handleConfirmSend = async () => {
-    // Validate amount before proceeding
-    if (!validateAmount()) {
+    // Validate amount using centralized helper
+    const validation = validateTransactionAmount(amount);
+    
+    if (!validation.valid) {
+      Alert.alert('Invalid Amount', validation.error);
       return;
     }
 
     try {
       setIsLoading(true);
-      const numAmount = parseFloat(amount);
 
       // Deduct money from wallet using sqliteWallet module
-      await deductMoney(numAmount);
+      await deductMoney(validation.amount);
 
       setIsLoading(false);
 
       // Show success message and navigate back to home
       Alert.alert(
         'Payment Sent',
-        `Successfully sent ₹${numAmount.toFixed(2)} to ${walletId}`,
+        `Successfully sent ₹${validation.amount.toFixed(2)} to ${walletId}`,
         [
           {
             text: 'OK',

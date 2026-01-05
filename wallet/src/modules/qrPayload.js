@@ -98,7 +98,7 @@ export const decodeQrPayload = (encodedPayload) => {
  * @param {number} expirySeconds - Expiry time in seconds (default 20s)
  * @returns {boolean} True if expired
  */
-export const isQrExpired = (payload, expirySeconds = 20) => {
+export const isQrExpired = (payload, expirySeconds = 60) => {
   const now = Date.now();
   const age = (now - payload.timestamp) / 1000; // Convert to seconds
   return age > expirySeconds;
