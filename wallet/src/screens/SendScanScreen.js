@@ -13,6 +13,7 @@ import {
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
+// Use centralized validation helper instead of inline QR parsing
 import {validateQrPayload} from '../modules/walletHelpers';
 
 const SendScanScreen = ({navigation}) => {
@@ -20,7 +21,7 @@ const SendScanScreen = ({navigation}) => {
   const [hasPermission, setHasPermission] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  // Get the back camera device (modern vision-camera API)
+  // Get the back camera device (modern vision-camera v4 API)
   const device = useCameraDevice('back');
 
   // Request camera permission on mount
@@ -47,6 +48,7 @@ const SendScanScreen = ({navigation}) => {
 
   /**
    * Request camera permission using modern vision-camera API
+   * Wraps async operation in try/catch with Alert error handling
    * Opens settings if permission is denied
    */
   const requestCameraPermission = async () => {
@@ -56,6 +58,7 @@ const SendScanScreen = ({navigation}) => {
       if (permission === 'granted') {
         setHasPermission(true);
       } else if (permission === 'denied') {
+        // Surface permission error using Alert with option to open settings
         Alert.alert(
           'Camera Permission Required',
           'Please enable camera permission in settings to scan QR codes.',
@@ -66,6 +69,7 @@ const SendScanScreen = ({navigation}) => {
         );
       }
     } catch (error) {
+      // Surface all errors using Alert as per refactor requirements
       console.error('Error requesting camera permission:', error);
       Alert.alert('Error', 'Failed to request camera permission');
     }
@@ -73,12 +77,13 @@ const SendScanScreen = ({navigation}) => {
 
   /**
    * Configure code scanner to detect QR codes
-   * Processes scanned data and navigates to SendAmountScreen
+   * Validates scanned data using centralized helper and passes walletId via navigation
+   * Prevents multiple scans and surfaces validation errors using Alert
    */
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'], // Only scan QR codes
     onCodeScanned: (codes) => {
-      // Prevent multiple scans - only process first scan
+      // Prevent multiple scans - only process first scan to avoid duplicate navigation
       if (scanned || codes.length === 0) {
         return;
       }
@@ -89,10 +94,11 @@ const SendScanScreen = ({navigation}) => {
       // Get the first QR code value
       const qrValue = codes[0].value;
 
-      // Validate QR payload using centralized helper
+      // Validate QR payload using centralized helper - ensures walletId exists and is valid
       const validation = validateQrPayload(qrValue);
 
       if (!validation.valid) {
+        // Surface validation error using Alert
         console.error('QR validation error:', validation.error);
         Alert.alert(
           'Invalid QR Code',
@@ -112,7 +118,7 @@ const SendScanScreen = ({navigation}) => {
 
       console.log('QR scanned successfully:', validation.walletId);
 
-      // Navigate to SendAmountScreen with validated walletId
+      // Pass validated walletId via navigation params - screen renders UI only
       navigation.navigate('SendAmount', {
         walletId: validation.walletId,
       });

@@ -11,25 +11,33 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+// Only import wallet mutation function from sqliteWallet - no direct DB access
 import {deductMoney} from '../modules/sqliteWallet';
+// Use centralized validation helper instead of inline validation
 import {validateTransactionAmount} from '../modules/walletHelpers';
 
 const SendAmountScreen = ({navigation, route}) => {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Validate navigation params on mount
+  // Extract walletId from navigation params - validates at entry point
   const walletId = route.params?.walletId;
   
+  /**
+   * Validate navigation params on mount
+   * Ensures walletId is present before allowing any operations
+   * Prevents runtime errors from missing required params
+   */
   React.useEffect(() => {
     if (!walletId) {
+      // Surface error using Alert and navigate back
       Alert.alert('Error', 'Invalid recipient wallet ID', [
         {text: 'OK', onPress: () => navigation.goBack()},
       ]);
     }
   }, [walletId, navigation]);
 
-  // Return early if no valid walletId
+  // Return early with loading indicator if no valid walletId
   if (!walletId) {
     return (
       <View style={styles.container}>
@@ -40,13 +48,15 @@ const SendAmountScreen = ({navigation, route}) => {
 
   /**
    * Handle confirm send button press
-   * Validates amount, deducts from wallet, and navigates on success
+   * Validates amount, deducts from wallet via sqliteWallet function, and navigates on success
+   * All async operations wrapped in try/catch with Alert error handling
    */
   const handleConfirmSend = async () => {
-    // Validate amount using centralized helper
+    // Validate amount using centralized helper - ensures amount is number and positive
     const validation = validateTransactionAmount(amount);
     
     if (!validation.valid) {
+      // Surface validation error using Alert
       Alert.alert('Invalid Amount', validation.error);
       return;
     }
@@ -54,12 +64,13 @@ const SendAmountScreen = ({navigation, route}) => {
     try {
       setIsLoading(true);
 
-      // Deduct money from wallet using sqliteWallet module
+      // Call exported wallet mutation function - no direct DB access
+      // deductMoney validates sufficient funds internally
       await deductMoney(validation.amount);
 
       setIsLoading(false);
 
-      // Show success message and navigate back to home
+      // Show success message and navigate back to home with stack reset
       Alert.alert(
         'Payment Sent',
         `Successfully sent ₹${validation.amount.toFixed(2)} to ${walletId}`,
@@ -67,7 +78,7 @@ const SendAmountScreen = ({navigation, route}) => {
           {
             text: 'OK',
             onPress: () => {
-              // Navigate to Home and reset navigation stack
+              // Reset navigation stack to prevent back navigation to payment flow
               navigation.reset({
                 index: 0,
                 routes: [{name: 'Home'}],
@@ -79,7 +90,7 @@ const SendAmountScreen = ({navigation, route}) => {
     } catch (error) {
       setIsLoading(false);
 
-      // Handle errors (e.g., insufficient funds)
+      // Surface all errors (e.g., insufficient funds, DB errors) using Alert
       console.error('Send money error:', error);
       Alert.alert('Payment Failed', error.message || 'Failed to send payment');
     }

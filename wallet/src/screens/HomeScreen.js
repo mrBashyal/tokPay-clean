@@ -8,8 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import {getBalance} from '../modules/sqliteWallet';
-import {initializeAndGetBalance} from '../modules/walletHelpers';
+import {initializeAndGetBalance, refreshBalance} from '../modules/walletHelpers';
 
 const HomeScreen = ({navigation}) => {
   const [balance, setBalance] = useState(0);
@@ -23,7 +22,7 @@ const HomeScreen = ({navigation}) => {
   // Refresh balance when screen comes into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      refreshBalance();
+      handleRefreshBalance();
     });
     return unsubscribe;
   }, [navigation]);
@@ -35,6 +34,7 @@ const HomeScreen = ({navigation}) => {
   const initializeWallet = async () => {
     try {
       setIsLoading(true);
+      // Use centralized helper to init DB and fetch balance
       const currentBalance = await initializeAndGetBalance();
       setBalance(currentBalance);
       setIsLoading(false);
@@ -46,15 +46,16 @@ const HomeScreen = ({navigation}) => {
 
   /**
    * Refresh balance from database
-   * Called when screen regains focus
+   * Called when screen regains focus - uses centralized helper to avoid duplicate logic
    */
-  const refreshBalance = async () => {
+  const handleRefreshBalance = async () => {
     try {
-      const currentBalance = await getBalance();
+      // Use centralized refreshBalance utility instead of direct getBalance call
+      const currentBalance = await refreshBalance();
       setBalance(currentBalance);
     } catch (error) {
       console.error('Error refreshing balance:', error);
-      Alert.alert('Error', 'Failed to refresh balance');
+      Alert.alert('Error', error.message);
     }
   };
 
@@ -103,7 +104,7 @@ const HomeScreen = ({navigation}) => {
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Available Balance</Text>
         <Text style={styles.balanceAmount}>₹{balance.toFixed(2)}</Text>
-        <TouchableOpacity onPress={refreshBalance}>
+        <TouchableOpacity onPress={handleRefreshBalance}>
           <Text style={styles.refreshText}>🔄 Refresh</Text>
         </TouchableOpacity>
       </View>

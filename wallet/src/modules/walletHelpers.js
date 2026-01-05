@@ -20,6 +20,22 @@ export const initializeAndGetBalance = async () => {
 };
 
 /**
+ * Refresh wallet balance
+ * Reusable utility to fetch current balance without re-initialization
+ * @returns {Promise<number>} Current wallet balance
+ */
+export const refreshBalance = async () => {
+  try {
+    // Fetch current balance from database
+    const balance = await getBalance();
+    return balance;
+  } catch (error) {
+    console.error('Error refreshing balance:', error);
+    throw new Error('Failed to refresh balance');
+  }
+};
+
+/**
  * Validate amount input for transactions
  * Centralizes amount validation logic
  * @param {string} amountString - Amount as string from input

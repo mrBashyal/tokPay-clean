@@ -6,47 +6,110 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+// Import identity read function and wallet mutation function
 import {getDeviceIdentity} from '../modules/deviceIdentity';
+import {addMoney} from '../modules/sqliteWallet';
+import {validateTransactionAmount} from '../modules/walletHelpers';
 
+/**
+ * ReceiveScreen - Display QR code for receiving payments
+ * Responsibilities:
+ * - Fetch device identity (read-only operation)
+ * - Generate QR payload with walletId
+ * - Accept incoming payments via addMoney()
+ * - Log transactions automatically via sqliteWallet
+ * All async operations wrapped in try/catch with Alert error handling
+ */
 const ReceiveScreen = ({navigation}) => {
   const [qrData, setQrData] = useState('');
   const [walletId, setWalletId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [receiveAmount, setReceiveAmount] = useState('');
+  const [isReceiving, setIsReceiving] = useState(false);
 
-  // Generate QR code on mount
+  // Generate QR code on mount - read-only operation
   useEffect(() => {
     generateQrCode();
   }, []);
 
   /**
    * Generate QR code with device identity as walletId
-   * Creates JSON payload for scanning
+   * Read-only operation - fetches identity and creates JSON payload for display
+   * Wraps async operation in try/catch with Alert error handling
    */
   const generateQrCode = async () => {
     try {
       setIsLoading(true);
 
-      // Get device identity to use as wallet ID
+      // Get device identity to use as wallet ID - read-only, no mutations
       const {deviceId} = await getDeviceIdentity();
 
-      // Create QR payload with walletId
+      // Create QR payload with walletId - simple data structure for scanning
       const qrPayload = {
         walletId: deviceId,
       };
 
-      // Convert to JSON string for QR code
+      // Convert to JSON string for QR code encoding
       const qrString = JSON.stringify(qrPayload);
 
-      // Update state
+      // Update state for UI rendering
       setQrData(qrString);
       setWalletId(deviceId);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
+      // Surface all errors using Alert as per refactor requirements
       console.error('Error generating QR:', error);
-      Alert.alert('Error', 'Failed to generate QR code');
+      Alert.alert('Error', error.message || 'Failed to generate QR code');
+    }
+  };
+
+  /**
+   * Handle receiving money from sender
+   * Validates amount, calls addMoney() to credit wallet and log transaction
+   * Simulates BLE/offline payment reception - in production would be triggered by BLE transfer
+   */
+  const handleReceiveMoney = async () => {
+    // Validate amount using centralized helper
+    const validation = validateTransactionAmount(receiveAmount);
+    
+    if (!validation.valid) {
+      Alert.alert('Invalid Amount', validation.error);
+      return;
+    }
+
+    try {
+      setIsReceiving(true);
+
+      // Call addMoney to credit wallet - automatically logs transaction
+      const newBalance = await addMoney(validation.amount);
+
+      setIsReceiving(false);
+      setReceiveAmount(''); // Clear input after success
+
+      // Show success alert with new balance
+      Alert.alert(
+        'Payment Received',
+        `Successfully received ₹${validation.amount.toFixed(2)}\nNew balance: ₹${newBalance.toFixed(2)}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate back to home to refresh balance display
+              navigation.goBack();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      setIsReceiving(false);
+      // Surface all errors using Alert
+      console.error('Receive money error:', error);
+      Alert.alert('Receive Failed', error.message || 'Failed to receive payment');
     }
   };
 
@@ -96,6 +159,36 @@ const ReceiveScreen = ({navigation}) => {
           • Payment will be processed instantly{'\n'}
           • Check your balance after receiving
         </Text>
+      </View>
+
+      {/* Simulate Receive Payment (for testing) */}
+      <View style={styles.testSection}>
+        <Text style={styles.testTitle}>🧪 Test Receive Payment</Text>
+        <Text style={styles.testSubtitle}>Simulate incoming payment for testing</Text>
+        
+        <View style={styles.receiveInputContainer}>
+          <Text style={styles.receiveCurrencySymbol}>₹</Text>
+          <TextInput
+            style={styles.receiveInput}
+            value={receiveAmount}
+            onChangeText={setReceiveAmount}
+            placeholder="Enter amount to receive"
+            placeholderTextColor="#999"
+            keyboardType="numeric"
+            editable={!isReceiving}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.receiveButton, isReceiving && styles.buttonDisabled]}
+          onPress={handleReceiveMoney}
+          disabled={isReceiving}>
+          {isReceiving ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.receiveButtonText}>Receive Money</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -201,6 +294,68 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     lineHeight: 22,
+  },
+  testSection: {
+    width: '90%',
+    backgroundColor: '#FFF9E6',
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    borderStyle: 'dashed',
+  },
+  testTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  testSubtitle: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 15,
+  },
+  receiveInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  receiveCurrencySymbol: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginRight: 5,
+  },
+  receiveInput: {
+    flex: 1,
+    fontSize: 20,
+    color: '#333',
+    paddingVertical: 12,
+  },
+  receiveButton: {
+    backgroundColor: '#34C759',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  receiveButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });
 

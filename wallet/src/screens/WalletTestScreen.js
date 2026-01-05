@@ -8,29 +8,34 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+// Only import wallet operations from sqliteWallet - no direct DB access
 import {
-  initDatabase,
-  getBalance,
   addMoney,
   deductMoney,
   getTransactions,
 } from '../modules/sqliteWallet';
+// Use centralized helpers for initialization and balance refresh
+import {initializeAndGetBalance, refreshBalance} from '../modules/walletHelpers';
 
 const WalletTestScreen = () => {
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize database on component mount
+  /**
+   * Initialize database and load current balance on mount
+   * Uses centralized helper instead of direct DB calls
+   */
   useEffect(() => {
     const init = async () => {
       try {
-        await initDatabase();
-        const currentBalance = await getBalance();
+        // Use centralized helper for initialization and balance fetch
+        const currentBalance = await initializeAndGetBalance();
         setBalance(currentBalance);
         setIsLoading(false);
       } catch (error) {
-        Alert.alert('Database Error', error.message);
+        // Surface errors using Alert as per refactor requirements
+        Alert.alert('Initialization Error', error.message);
         setIsLoading(false);
       }
     };
@@ -38,49 +43,69 @@ const WalletTestScreen = () => {
     init();
   }, []);
 
-  // Handle adding money to wallet
+  /**
+   * Add ₹500 to wallet
+   * Wraps async wallet mutation in try/catch with Alert error handling
+   */
   const handleAddMoney = async () => {
     try {
+      // Call exported function from sqliteWallet - no direct DB access
       const newBalance = await addMoney(500);
       setBalance(newBalance);
-      Alert.alert('Success', `Added ₹500. New balance: ₹${newBalance}`);
+      Alert.alert('Success', `Added ₹500. New balance: ₹${newBalance.toFixed(2)}`);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Surface all errors using Alert
+      Alert.alert('Error', error.message || 'Failed to add money');
     }
   };
 
-  // Handle deducting money from wallet
+  /**
+   * Deduct ₹200 from wallet
+   * Wraps async wallet mutation in try/catch with Alert error handling
+   */
   const handleDeductMoney = async () => {
     try {
+      // Call exported function from sqliteWallet - validates sufficient funds internally
       const newBalance = await deductMoney(200);
       setBalance(newBalance);
-      Alert.alert('Success', `Deducted ₹200. New balance: ₹${newBalance}`);
+      Alert.alert('Success', `Deducted ₹200. New balance: ₹${newBalance.toFixed(2)}`);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Surface errors (e.g., insufficient funds) using Alert
+      Alert.alert('Error', error.message || 'Failed to deduct money');
     }
   };
 
-  // Handle showing current balance
+  /**
+   * Refresh and display current balance
+   * Uses centralized refreshBalance utility to avoid duplicate logic
+   */
   const handleShowBalance = async () => {
     try {
-      const currentBalance = await getBalance();
+      // Use centralized refreshBalance utility instead of direct getBalance
+      const currentBalance = await refreshBalance();
       setBalance(currentBalance);
-      Alert.alert('Current Balance', `₹${currentBalance}`);
+      Alert.alert('Current Balance', `₹${currentBalance.toFixed(2)}`);
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Surface errors using Alert
+      Alert.alert('Error', error.message || 'Failed to fetch balance');
     }
   };
 
-  // Handle showing all transactions
+  /**
+   * Fetch and display all transactions
+   * Wraps async operation in try/catch with Alert error handling
+   */
   const handleShowTransactions = async () => {
     try {
+      // Call exported function from sqliteWallet - no direct DB queries
       const allTransactions = await getTransactions();
       setTransactions(allTransactions);
       if (allTransactions.length === 0) {
         Alert.alert('Transactions', 'No transactions found');
       }
     } catch (error) {
-      Alert.alert('Error', error.message);
+      // Surface errors using Alert
+      Alert.alert('Error', error.message || 'Failed to fetch transactions');
     }
   };
 
