@@ -22,6 +22,34 @@ let bleManager = null;
 let currentDevice = null;
 let scanSubscription = null;
 
+const stopActiveScan = (manager = null) => {
+  const mgr = manager || bleManager;
+
+  // react-native-ble-plx uses stopDeviceScan(); startDeviceScan may or may not
+  // return a subscription/function depending on version/build.
+  if (mgr && typeof mgr.stopDeviceScan === 'function') {
+    try {
+      mgr.stopDeviceScan();
+    } catch (e) {
+      console.error('Error stopping BLE scan:', e);
+    }
+  }
+
+  if (scanSubscription) {
+    try {
+      if (typeof scanSubscription.remove === 'function') {
+        scanSubscription.remove();
+      } else if (typeof scanSubscription === 'function') {
+        scanSubscription();
+      }
+    } catch (e) {
+      console.error('Error cleaning scan subscription:', e);
+    }
+  }
+
+  scanSubscription = null;
+};
+
 const toArrayBuffer = (bytes) =>
   bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 
@@ -140,18 +168,14 @@ export const scanAndConnect = async (targetDeviceId = null) => {
       const manager = initBleManager();
 
       // Stop any existing scan
-      if (scanSubscription) {
-        scanSubscription.remove();
-      }
+      stopActiveScan(manager);
 
       console.log('Starting BLE scan for TokPay devices...');
 
       // Set scan timeout to prevent infinite scanning
       const timeoutId = setTimeout(() => {
-        if (scanSubscription) {
-          scanSubscription.remove();
-        }
-        reject(new Error('Scan timeout - no devices found'));
+        stopActiveScan(manager);
+        reject(new Error('Scan timeout - no devices found'+ scanSubscription));
       }, SCAN_TIMEOUT);
 
       // Start scanning for devices with TokPay service UUID
@@ -161,6 +185,7 @@ export const scanAndConnect = async (targetDeviceId = null) => {
         async (error, device) => {
           if (error) {
             clearTimeout(timeoutId);
+            stopActiveScan(manager);
             console.error('Scan error:', error);
             reject(new Error(`Scan failed: ${error.message}`));
             return;
@@ -174,7 +199,7 @@ export const scanAndConnect = async (targetDeviceId = null) => {
           console.log(`Found TokPay device: ${device.name || device.id}`);
 
           // Stop scanning once device is found
-          manager.stopDeviceScan();
+          stopActiveScan(manager);
           clearTimeout(timeoutId);
 
           try {
@@ -371,10 +396,7 @@ export const disconnect = async () => {
       console.log(`Disconnected from device: ${deviceId}`);
     }
 
-    if (scanSubscription) {
-      scanSubscription.remove();
-      scanSubscription = null;
-    }
+    stopActiveScan();
 
     return true;
   } catch (error) {

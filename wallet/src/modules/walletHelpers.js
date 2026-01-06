@@ -105,8 +105,32 @@ export const validateQrPayload = (qrString) => {
       };
     }
 
-    // Extract validated fields from payload
-    const {device_id, device_name, ble_service_uuid} = verification.payload;
+    // Extract validated fields from payload (supports v1 and v2 schemas)
+    const payload = verification.payload;
+
+    let device_id;
+    let device_name;
+    let ble_service_uuid;
+
+    if (payload?.version === '2.0') {
+      device_id = payload.conn?.device_id;
+      device_name = payload.conn?.device_name;
+      ble_service_uuid = payload.conn?.ble_service_uuid;
+    } else {
+      device_id = payload?.device_id;
+      device_name = payload?.device_name;
+      ble_service_uuid = payload?.ble_service_uuid;
+    }
+
+    if (!device_id || !device_name || !ble_service_uuid) {
+      return {
+        valid: false,
+        deviceId: '',
+        deviceName: '',
+        bleServiceUuid: '',
+        error: 'Invalid QR: missing required connection fields',
+      };
+    }
 
     return {
       valid: true,
