@@ -11,14 +11,13 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-// Only import wallet mutation function from sqliteWallet - no direct DB access
-import {deductMoney} from '../modules/sqliteWallet';
-// Use centralized validation helper instead of inline validation
-import {validateTransactionAmount} from '../modules/walletHelpers';
+// Use centralized validation and payment processing helpers - no business logic in UI
+import {validateTransactionAmount, processOfflinePayment} from '../modules/walletHelpers';
 
 const SendAmountScreen = ({navigation, route}) => {
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
 
   // Extract walletId from navigation params - validates at entry point
   const walletId = route.params?.walletId;
@@ -48,7 +47,8 @@ const SendAmountScreen = ({navigation, route}) => {
 
   /**
    * Handle confirm send button press
-   * Validates amount, deducts from wallet via sqliteWallet function, and navigates on success
+   * Orchestrates offline payment: token generation → BLE transfer → wallet update
+   * All business logic delegated to processOfflinePayment helper
    * All async operations wrapped in try/catch with Alert error handling
    */
   const handleConfirmSend = async () => {
@@ -63,36 +63,44 @@ const SendAmountScreen = ({navigation, route}) => {
 
     try {
       setIsLoading(true);
+      setStatusMessage('Generating payment token...');
 
-      // Call exported wallet mutation function - no direct DB access
-      // deductMoney validates sufficient funds internally
-      await deductMoney(validation.amount);
+      // Process offline payment: generate token → scan BLE → send token → update wallet
+      // All business logic is in processOfflinePayment helper function
+      const result = await processOfflinePayment(validation.amount, walletId);
 
       setIsLoading(false);
+      setStatusMessage('');
 
-      // Show success message and navigate back to home with stack reset
-      Alert.alert(
-        'Payment Sent',
-        `Successfully sent ₹${validation.amount.toFixed(2)} to ${walletId}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset navigation stack to prevent back navigation to payment flow
-              navigation.reset({
-                index: 0,
-                routes: [{name: 'Home'}],
-              });
+      if (result.success) {
+        // Show success message with payment details
+        Alert.alert(
+          'Payment Sent',
+          `${result.message} to ${walletId}\n\nToken transmitted via BLE`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Reset navigation stack to prevent back navigation to payment flow
+                navigation.reset({
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                });
+              },
             },
-          },
-        ]
-      );
+          ]
+        );
+      } else {
+        // Show failure message with error details
+        Alert.alert('Payment Failed', result.message);
+      }
     } catch (error) {
       setIsLoading(false);
+      setStatusMessage('');
 
-      // Surface all errors (e.g., insufficient funds, DB errors) using Alert
-      console.error('Send money error:', error);
-      Alert.alert('Payment Failed', error.message || 'Failed to send payment');
+      // Surface all unexpected errors using Alert
+      console.error('Send payment error:', error);
+      Alert.alert('Payment Failed', error.message || 'An unexpected error occurred');
     }
   };
 
@@ -142,9 +150,17 @@ const SendAmountScreen = ({navigation, route}) => {
         <View style={styles.infoBox}>
           <Text style={styles.infoIcon}>ℹ️</Text>
           <Text style={styles.infoText}>
-            Amount will be deducted from your offline wallet balance.
+            Payment will be sent via offline BLE token transfer.
           </Text>
         </View>
+
+        {/* Loading Status Message */}
+        {isLoading && statusMessage && (
+          <View style={styles.statusBox}>
+            <ActivityIndicator color="#007AFF" size="small" />
+            <Text style={styles.statusText}>{statusMessage}</Text>
+          </View>
+        )}
 
         {/* Buttons */}
         <View style={styles.buttonContainer}>
@@ -269,6 +285,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     lineHeight: 20,
+  },
+  statusBox: {
+    backgroundColor: '#FFF3CD',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#FFC107',
+  },
+  statusText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#856404',
+    marginLeft: 10,
+    fontWeight: '500',
   },
   buttonContainer: {
     marginTop: 'auto',

@@ -116,11 +116,14 @@ const SendScanScreen = ({navigation}) => {
         return;
       }
 
-      console.log('QR scanned successfully:', validation.walletId);
+      console.log('QR scanned successfully:', validation.deviceId, validation.deviceName);
 
-      // Pass validated walletId via navigation params - screen renders UI only
+      // Pass validated device info via navigation params
       navigation.navigate('SendAmount', {
-        walletId: validation.walletId,
+        walletId: validation.deviceId,
+        deviceId: validation.deviceId,
+        deviceName: validation.deviceName,
+        bleServiceUuid: validation.bleServiceUuid,
       });
     },
   });

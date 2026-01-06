@@ -51,6 +51,16 @@ rule CXX_COMPILER__react_codegen_rnasyncstorage_RelWithDebInfo
 #############################################
 # Rule for compiling CXX files.
 
+rule CXX_COMPILER__react_codegen_BlePlx_RelWithDebInfo
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
+# Rule for compiling CXX files.
+
 rule CXX_COMPILER__react_codegen_rngesturehandler_codegen_RelWithDebInfo
   depfile = $DEP_FILE
   deps = gcc
@@ -62,6 +72,16 @@ rule CXX_COMPILER__react_codegen_rngesturehandler_codegen_RelWithDebInfo
 # Rule for compiling CXX files.
 
 rule CXX_COMPILER__react_codegen_RNGetRandomValuesSpec_RelWithDebInfo
+  depfile = $DEP_FILE
+  deps = gcc
+  command = /home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building CXX object $out
+
+
+#############################################
+# Rule for compiling CXX files.
+
+rule CXX_COMPILER__react_codegen_RNKeychainSpec_RelWithDebInfo
   depfile = $DEP_FILE
   deps = gcc
   command = /home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android24 --sysroot=/home/ayush/Android/Sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
