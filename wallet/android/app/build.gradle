@@ -84,6 +84,12 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        def relayUrl = System.getenv("TOKPAY_RELAY_URL") ?: ""
+        buildConfigField "String", "TOKPAY_RELAY_URL", "\"${relayUrl}\""
+
+        def cleartext = relayUrl.startsWith("http://") ? "true" : "false"
+        manifestPlaceholders = [usesCleartextTraffic: cleartext]
     }
     signingConfigs {
         debug {

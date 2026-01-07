@@ -21,6 +21,7 @@ import {onDataReceived} from '../modules/blePeripheral';
 import {deserializeToken} from '../modules/offlineToken';
 // Import QR generation utilities (pure functions, no side effects)
 import {generateReceiveQR, isQRExpired as checkQRExpiry} from '../modules/qrGenerator';
+import {decodeUtf8} from '../modules/textEncoding';
 
 /**
  * ReceiveScreen - Display QR and listen for BLE token transfers
@@ -115,7 +116,7 @@ const ReceiveScreen = ({navigation}) => {
       
       // Decode outer base64 wrapper
       const rawBytes = base64Decode(event.data);
-      const rawString = new TextDecoder().decode(new Uint8Array(rawBytes));
+      const rawString = decodeUtf8(new Uint8Array(rawBytes));
       
       console.log('[BLE Receive] Raw string:', rawString.substring(0, 100));
 

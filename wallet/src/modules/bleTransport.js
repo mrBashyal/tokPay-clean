@@ -22,6 +22,13 @@ let bleManager = null;
 let currentDevice = null;
 let scanSubscription = null;
 
+const getMaxWriteBytes = (device) => {
+  if (Platform.OS === 'android' && device && typeof device.mtu === 'number' && device.mtu > 0) {
+    return Math.max(20, device.mtu - 3);
+  }
+  return 20;
+};
+
 const stopActiveScan = (manager = null) => {
   const mgr = manager || bleManager;
 
@@ -231,10 +238,20 @@ export const scanAndConnect = async (targetDeviceId = null) => {
             // Discover all services and characteristics
             await connectedDevice.discoverAllServicesAndCharacteristics();
 
-            currentDevice = connectedDevice;
+            let finalDevice = connectedDevice;
+            if (Platform.OS === 'android' && typeof connectedDevice.requestMTU === 'function') {
+              try {
+                finalDevice = await connectedDevice.requestMTU(517);
+              } catch (mtuError) {
+                console.log('MTU request failed:', getErrorMessage(mtuError));
+              }
+            }
+
+            currentDevice = finalDevice;
 
             console.log('Successfully connected to TokPay device');
-            resolve(connectedDevice);
+            console.log('Max write bytes:', getMaxWriteBytes(finalDevice));
+            resolve(finalDevice);
           } catch (connectError) {
             console.error('Connection error:', connectError);
             reject(new Error(`Connection failed: ${getErrorMessage(connectError)}`));
@@ -274,34 +291,49 @@ export const sendToken = async (token, device = null) => {
     // Serialize token to base64 string for BLE transmission
     const tokenString = serializeToken(token);
 
-    // Split token into chunks if too large (BLE MTU limit ~512 bytes)
-    const MAX_CHUNK_SIZE = 500;
-    const chunks = [];
-    for (let i = 0; i < tokenString.length; i += MAX_CHUNK_SIZE) {
-      chunks.push(tokenString.substring(i, i + MAX_CHUNK_SIZE));
+    const maxWriteBytes = getMaxWriteBytes(targetDevice);
+    let maxFragmentLen = Math.max(1, maxWriteBytes - 15);
+
+    let fragments = [];
+    while (true) {
+      fragments = [];
+      for (let i = 0; i < tokenString.length; i += maxFragmentLen) {
+        fragments.push(tokenString.substring(i, i + maxFragmentLen));
+      }
+
+      const totalChunks = fragments.length;
+      const testHeader = `${totalChunks - 1}/${totalChunks}:`;
+      const testPayload = encodeUtf8(`${testHeader}${fragments[totalChunks - 1]}`);
+      if (testPayload.byteLength <= maxWriteBytes) {
+        break;
+      }
+
+      maxFragmentLen = Math.max(1, maxFragmentLen - 1);
     }
 
-    console.log(`Sending token in ${chunks.length} chunk(s)...`);
+    const totalChunks = fragments.length;
+    console.log(`Sending token in ${totalChunks} chunk(s)...`);
 
-    // Send each chunk via BLE characteristic write
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const chunkData = `${i}/${chunks.length}:${chunk}`;
+    for (let i = 0; i < totalChunks; i++) {
+      const fragment = fragments[i];
+      const chunkData = `${i}/${totalChunks}:${fragment}`;
 
-      const payloadBase64 = encodeBase64(toArrayBuffer(encodeUtf8(chunkData)));
-      
-      console.log(`Writing chunk ${i + 1}/${chunks.length}, size: ${payloadBase64.length} bytes`);
-      
-      // Use writeWithoutResponse for better compatibility
+      const payloadBytes = encodeUtf8(chunkData);
+      if (payloadBytes.byteLength > maxWriteBytes) {
+        throw new Error('Chunk exceeds max write size');
+      }
+
+      const payloadBase64 = encodeBase64(toArrayBuffer(payloadBytes));
+      console.log(`Writing chunk ${i + 1}/${totalChunks}, bytes: ${payloadBytes.byteLength}`);
+
       await targetDevice.writeCharacteristicWithoutResponseForService(
         TOKPAY_SERVICE_UUID,
         TOKPAY_CHARACTERISTIC_UUID,
         payloadBase64
       );
-      
-      // Small delay between chunks to ensure receiver processes each one
-      if (i < chunks.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+
+      if (i < totalChunks - 1) {
+        await new Promise(resolve => setTimeout(resolve, 30));
       }
     }
 

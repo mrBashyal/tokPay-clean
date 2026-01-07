@@ -153,6 +153,24 @@ Before demo:
 
 ---
 
+## 📤 Export/Share (Without Backend)
+
+If you need to share the project without the backend code, zip only the `wallet/` folder:
+
+```bash
+cd "/home/ayush/Desktop/tokpay basic app"
+zip -r tokpay-wallet-only.zip "wallet" \
+    -x "wallet/node_modules/*" \
+    -x "wallet/android/.gradle/*" \
+    -x "wallet/android/app/build/*" \
+    -x "wallet/android/build/*" \
+    -x "wallet/.git/*"
+```
+
+This creates `tokpay-wallet-only.zip` containing just the Android app sources and scripts.
+
+---
+
 ## 🔐 Production Considerations (Post-Hackathon)
 
 For Google Play Store release:
