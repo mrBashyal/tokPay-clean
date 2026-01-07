@@ -1,27 +1,14 @@
 /**
  * BLE Session Manager (Receiver-side session state)
  *
- * IMPORTANT LIMITATION (as of now):
- * - True BLE peripheral advertising is NOT implemented in this module.
- * - `react-native-ble-plx` primarily supports Central mode (scan/connect).
- * - `startAdvertising()` currently validates Bluetooth is PoweredOn and updates
- *   session state, but it does NOT make the device discoverable via real BLE
- *   advertising.
- *
- * This is intentionally NOT “faking connections”:
- * - No connection is created here.
- * - No token transport occurs here.
- * - `CONNECTED` can only be set by calling `markConnected()` from a real
- *   connection event source (currently pending integration).
+ * Uses native TokpayBlePeripheral module for true BLE advertising.
+ * The native module handles:
+ * - BLE peripheral advertising with TokPay service UUID
+ * - GATT server for receiving data from sender devices
+ * - Connection state management
  *
  * TokPay Service UUID:
- * - The service UUID used by the transport protocol is
- *   `0000ffe0-0000-1000-8000-00805f9b34fb`.
- * - It is defined/used in the Central-mode transport module
- *   [wallet/src/modules/bleTransport.js](wallet/src/modules/bleTransport.js) and
- *   in the receiver QR payload.
- * - This module does not currently advertise that UUID because true peripheral
- *   mode requires a dedicated native peripheral/advertising implementation.
+ * - `0000ffe0-0000-1000-8000-00805f9b34fb`
  *
  * Purpose:
  * - Manage Receive-mode session lifecycle state (IDLE | ADVERTISING | CONNECTED)
@@ -30,7 +17,7 @@
  */
 
 import {BleManager} from 'react-native-ble-plx';
-import {Platform} from 'react-native';
+import {startPeripheral, stopPeripheral} from './blePeripheral';
 
 // Session states
 export type BleSessionState = 'IDLE' | 'ADVERTISING' | 'CONNECTED';
@@ -60,17 +47,10 @@ export const getSessionState = (): BleSessionState => {
 };
 
 /**
- * Start Receive-mode advertising session.
+ * Start Receive-mode advertising session using native BLE peripheral.
  *
- * Current behavior:
- * - Does NOT start true BLE advertising.
- * - Only checks Bluetooth state and sets internal sessionState.
- *
- * Pending work (explicitly not implemented here):
- * - Real peripheral advertising of TokPay service UUID
- * - Accepting incoming connections and raising connection events
- * 
  * Behavior:
+ * - Starts native BLE advertising with GATT server
  * - Sets state to ADVERTISING
  * - Idempotent: safe to call multiple times
  * 
@@ -87,7 +67,7 @@ export const startAdvertising = async (): Promise<void> => {
       return;
     }
 
-    console.log('[BLE Session] Starting advertising...');
+    console.log('[BLE Session] Starting native BLE advertising...');
 
     // Check Bluetooth state
     const state = await manager.state();
@@ -97,31 +77,11 @@ export const startAdvertising = async (): Promise<void> => {
       );
     }
 
-    // Start advertising with TokPay service UUID
-    // Note: react-native-ble-plx provides peripheral mode via startDeviceScan
-    // For true advertising, we need to use native modules or alternative approach
+    // Start native BLE peripheral advertising
+    await startPeripheral();
     
-    if (Platform.OS === 'android') {
-      // Android: Use BLE advertising API
-      // Note: react-native-ble-plx doesn't expose peripheral mode directly
-      // For MVP, we'll use a workaround: continuous scanning with no connection
-      // Production would need native module for BLE peripheral advertising
-      
-      console.log('[BLE Session] Android: Advertising simulation mode');
-      console.log('[BLE Session] WARNING: True BLE advertising requires native module');
-      console.log('[BLE Session] For two-device testing, sender device must scan and connect');
-      
-      sessionState = 'ADVERTISING';
-      console.log('[BLE Session] State changed to ADVERTISING');
-      
-    } else {
-      // iOS: Use Core Bluetooth peripheral manager (requires native module)
-      console.log('[BLE Session] iOS: Advertising simulation mode');
-      console.log('[BLE Session] WARNING: True BLE advertising requires native module');
-      
-      sessionState = 'ADVERTISING';
-      console.log('[BLE Session] State changed to ADVERTISING');
-    }
+    sessionState = 'ADVERTISING';
+    console.log('[BLE Session] State changed to ADVERTISING (native peripheral active)');
 
   } catch (err) {
     console.error('[BLE Session] Advertising failed:', err);
@@ -136,7 +96,7 @@ export const startAdvertising = async (): Promise<void> => {
  * Stops device from being discoverable and cleans up resources
  * 
  * Behavior:
- * - Stops advertising if active
+ * - Stops native advertising if active
  * - Resets state to IDLE
  * - Idempotent: safe to call multiple times
  * 
@@ -149,9 +109,11 @@ export const stopAdvertising = async (): Promise<void> => {
       return;
     }
 
-    console.log('[BLE Session] Stopping advertising...');
+    console.log('[BLE Session] Stopping native advertising...');
+    
+    // Stop native peripheral advertising
+    await stopPeripheral();
 
-    // Stop advertising (in simulation mode, just reset state)
     sessionState = 'IDLE';
     console.log('[BLE Session] State changed to IDLE');
 

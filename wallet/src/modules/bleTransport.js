@@ -54,13 +54,35 @@ const toArrayBuffer = (bytes) =>
   bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 
 /**
+ * Extract error message safely from any error object
+ * Handles BLE library errors which may have non-standard structures
+ */
+const getErrorMessage = (error) => {
+  if (!error) return 'Unknown error';
+  if (typeof error === 'string') return error;
+  if (error.message) return error.message;
+  if (error.reason) return error.reason;
+  if (error.toString) return error.toString();
+  return 'Unknown BLE error';
+};
+
+/**
  * Initialize BLE manager singleton
  * Creates new manager instance if not already initialized
  * @returns {BleManager} BLE manager instance
  */
 const initBleManager = () => {
   if (!bleManager) {
-    bleManager = new BleManager();
+    bleManager = new BleManager({
+      // Handle internal RxBle errors to prevent crashes
+      errorOnBluetoothOff: false,
+    });
+    
+    // Set up state change handler
+    bleManager.onStateChange((state) => {
+      console.log('[BLE] Bluetooth state changed:', state);
+    }, true);
+    
     console.log('BLE Manager initialized');
   }
   return bleManager;
@@ -175,7 +197,7 @@ export const scanAndConnect = async (targetDeviceId = null) => {
       // Set scan timeout to prevent infinite scanning
       const timeoutId = setTimeout(() => {
         stopActiveScan(manager);
-        reject(new Error('Scan timeout - no devices found'+ scanSubscription));
+        reject(new Error('Scan timeout - no devices found. Make sure the receiver is on the Receive screen.'));
       }, SCAN_TIMEOUT);
 
       // Start scanning for devices with TokPay service UUID
@@ -187,16 +209,13 @@ export const scanAndConnect = async (targetDeviceId = null) => {
             clearTimeout(timeoutId);
             stopActiveScan(manager);
             console.error('Scan error:', error);
-            reject(new Error(`Scan failed: ${error.message}`));
+            reject(new Error(`Scan failed: ${getErrorMessage(error)}`));
             return;
           }
 
-          // Filter by target device ID if specified
-          if (targetDeviceId && device.id !== targetDeviceId) {
-            return;
-          }
-
-          console.log(`Found TokPay device: ${device.name || device.id}`);
+          // Note: Device ID filtering removed - Android device IDs may not match expected format
+          // Accept any device advertising the TokPay service UUID
+          console.log(`Found TokPay device: ${device.name || device.id} (ID: ${device.id})`);
 
           // Stop scanning once device is found
           stopActiveScan(manager);
@@ -218,13 +237,13 @@ export const scanAndConnect = async (targetDeviceId = null) => {
             resolve(connectedDevice);
           } catch (connectError) {
             console.error('Connection error:', connectError);
-            reject(new Error(`Connection failed: ${connectError.message}`));
+            reject(new Error(`Connection failed: ${getErrorMessage(connectError)}`));
           }
         }
       );
     } catch (error) {
       console.error('Error in scanAndConnect:', error);
-      reject(new Error(`Scan and connect failed: ${error.message}`));
+      reject(new Error(`Scan and connect failed: ${getErrorMessage(error)}`));
     }
   });
 };
@@ -271,11 +290,19 @@ export const sendToken = async (token, device = null) => {
 
       const payloadBase64 = encodeBase64(toArrayBuffer(encodeUtf8(chunkData)));
       
-      await targetDevice.writeCharacteristicWithResponseForService(
+      console.log(`Writing chunk ${i + 1}/${chunks.length}, size: ${payloadBase64.length} bytes`);
+      
+      // Use writeWithoutResponse for better compatibility
+      await targetDevice.writeCharacteristicWithoutResponseForService(
         TOKPAY_SERVICE_UUID,
         TOKPAY_CHARACTERISTIC_UUID,
         payloadBase64
       );
+      
+      // Small delay between chunks to ensure receiver processes each one
+      if (i < chunks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
 
     console.log('Token sent successfully via BLE');
@@ -283,13 +310,15 @@ export const sendToken = async (token, device = null) => {
   } catch (error) {
     console.error('Error sending token:', error);
     
+    const errorMsg = getErrorMessage(error);
+    
     // Handle specific BLE errors
-    if (error.message.includes('disconnect')) {
+    if (errorMsg.toLowerCase().includes('disconnect')) {
       throw new Error('Device disconnected during transmission');
-    } else if (error.message.includes('timeout')) {
+    } else if (errorMsg.toLowerCase().includes('timeout')) {
       throw new Error('Transmission timeout - device not responding');
     } else {
-      throw new Error(`Token transmission failed: ${error.message}`);
+      throw new Error(`Token transmission failed: ${errorMsg}`);
     }
   }
 };
@@ -327,7 +356,7 @@ export const receiveToken = async (onTokenReceived, device = null) => {
       (error, characteristic) => {
         if (error) {
           console.error('Error receiving token:', error);
-          onTokenReceived(null, new Error(`Receive failed: ${error.message}`));
+          onTokenReceived(null, new Error(`Receive failed: ${getErrorMessage(error)}`));
           return;
         }
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, {useState, useRef, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import {useFocusEffect} from '@react-navigation/native';
+import {decode as base64Decode} from 'base64-arraybuffer';
+
 // Import modules for device identity, wallet operations, and BLE communication
 import {getDeviceIdentity} from '../modules/deviceIdentity';
-import {receiveToken, disconnect, requestBlePermissions, isConnected} from '../modules/bleTransport';
+import {disconnect, requestBlePermissions} from '../modules/bleTransport';
 import {applyReceivedPaymentToken} from '../modules/walletHelpers';
 import {startAdvertising, stopAdvertising} from '../modules/bleSessionManager';
+import {onDataReceived} from '../modules/blePeripheral';
+import {deserializeToken} from '../modules/offlineToken';
 // Import QR generation utilities (pure functions, no side effects)
 import {generateReceiveQR, isQRExpired as checkQRExpiry} from '../modules/qrGenerator';
 
@@ -21,10 +26,11 @@ import {generateReceiveQR, isQRExpired as checkQRExpiry} from '../modules/qrGene
  * ReceiveScreen - Display QR and listen for BLE token transfers
  * Responsibilities:
  * - Generate dynamic QR with device ID and ephemeral public key
- * - Start BLE listener for incoming tokens
+ * - Start BLE peripheral advertising for incoming connections
+ * - Listen for token data via native BLE peripheral events
+ * - Parse chunk format and reassemble tokens
  * - Verify token signatures using processReceivedToken
  * - Update SQLite wallet and log transactions
- * - Send ACK to sender via BLE
  * All async operations wrapped in try/catch with Alert error handling
  */
 const ReceiveScreen = ({navigation}) => {
@@ -34,9 +40,9 @@ const ReceiveScreen = ({navigation}) => {
   const [isListening, setIsListening] = useState(false);
   const [qrTimestamp, setQrTimestamp] = useState(Date.now());
   
-  // Track if BLE cleanup has been done to prevent duplicate cleanup
-  const bleCleanedUp = useRef(false);
-  const tokenListenerStarted = useRef(false);
+  // Track received chunks for multi-part token assembly
+  const receivedChunks = useRef({});
+  const tokenProcessed = useRef(false);
 
   const generateDynamicQR = useCallback(async () => {
     try {
@@ -59,6 +65,128 @@ const ReceiveScreen = ({navigation}) => {
     }
   }, []);
 
+  const handleTokenReceived = useCallback(async (token) => {
+    if (tokenProcessed.current) {
+      console.log('Token already processed, ignoring');
+      return;
+    }
+    tokenProcessed.current = true;
+
+    try {
+      console.log('Complete token received, verifying...');
+
+      const result = await applyReceivedPaymentToken(token);
+      if (!result.success) {
+        tokenProcessed.current = false;
+        Alert.alert('Invalid Token', result.message);
+        return;
+      }
+
+      console.log(`Payment credited: ${result.amount}, new balance: ${result.newBalance}`);
+
+      // Show success alert with payment details
+      Alert.alert(
+        'Payment Received',
+        `Successfully received ${result.amount.toFixed(2)}\nFrom: ${token.payer_device_id?.substring(0, 8)}...\nNew balance: ${result.newBalance.toFixed(2)}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.goBack();
+            },
+          },
+        ]
+      );
+      
+    } catch (err) {
+      console.error('Error processing received token:', err);
+      tokenProcessed.current = false;
+      Alert.alert('Processing Error', err.message || 'Failed to process payment');
+    }
+  }, [navigation]);
+
+  /**
+   * Process incoming BLE data chunks
+   * Format: base64(index/total:tokendata)
+   */
+  const handleBleDataReceived = useCallback((event) => {
+    try {
+      console.log(`[BLE Receive] Got data from ${event.deviceId}, ${event.length} bytes`);
+      
+      // Decode outer base64 wrapper
+      const rawBytes = base64Decode(event.data);
+      const rawString = new TextDecoder().decode(new Uint8Array(rawBytes));
+      
+      console.log('[BLE Receive] Raw string:', rawString.substring(0, 100));
+
+      // Parse chunk format: "index/total:data"
+      const colonIdx = rawString.indexOf(':');
+      if (colonIdx === -1) {
+        console.error('[BLE Receive] Invalid chunk format - no colon separator');
+        return;
+      }
+
+      const header = rawString.substring(0, colonIdx);
+      const tokenData = rawString.substring(colonIdx + 1);
+
+      const slashIdx = header.indexOf('/');
+      if (slashIdx === -1) {
+        console.error('[BLE Receive] Invalid chunk header format');
+        return;
+      }
+
+      const chunkIndex = parseInt(header.substring(0, slashIdx), 10);
+      const totalChunks = parseInt(header.substring(slashIdx + 1), 10);
+
+      console.log(`[BLE Receive] Chunk ${chunkIndex + 1}/${totalChunks}`);
+
+      // Store chunk
+      if (!receivedChunks.current.total) {
+        receivedChunks.current = {
+          total: totalChunks,
+          chunks: {},
+          deviceId: event.deviceId,
+        };
+      }
+
+      receivedChunks.current.chunks[chunkIndex] = tokenData;
+
+      // Check if all chunks received
+      const receivedCount = Object.keys(receivedChunks.current.chunks).length;
+      if (receivedCount === totalChunks) {
+        console.log('[BLE Receive] All chunks received, assembling token...');
+
+        // Reassemble token data
+        let fullTokenBase64 = '';
+        for (let i = 0; i < totalChunks; i++) {
+          if (!receivedChunks.current.chunks[i]) {
+            console.error(`[BLE Receive] Missing chunk ${i}`);
+            return;
+          }
+          fullTokenBase64 += receivedChunks.current.chunks[i];
+        }
+
+        // Reset chunks for next potential transfer
+        receivedChunks.current = {};
+
+        // Deserialize the complete token
+        console.log('[BLE Receive] Deserializing token...');
+        const token = deserializeToken(fullTokenBase64);
+        
+        if (!token) {
+          console.error('[BLE Receive] Failed to deserialize token');
+          Alert.alert('Error', 'Received invalid token data');
+          return;
+        }
+
+        console.log('[BLE Receive] Token deserialized successfully');
+        handleTokenReceived(token);
+      }
+    } catch (error) {
+      console.error('[BLE Receive] Error processing data:', error);
+    }
+  }, [handleTokenReceived]);
+
   const startAdvertisingFlow = useCallback(async () => {
     // Request BLE permissions before starting advertising
     const hasPermission = await requestBlePermissions();
@@ -66,122 +194,72 @@ const ReceiveScreen = ({navigation}) => {
       throw new Error('Bluetooth permissions required for receiving payments');
     }
 
-    console.log('Starting BLE advertising (Peripheral mode)...');
+    console.log('Starting BLE advertising (Native Peripheral mode)...');
     await startAdvertising();
     setIsListening(true);
     console.log('BLE advertising started - device now discoverable');
   }, []);
 
   const cleanupBle = useCallback(async () => {
-    if (bleCleanedUp.current) return;
-
     try {
-      bleCleanedUp.current = true;
       setIsListening(false);
-      tokenListenerStarted.current = false;
+      receivedChunks.current = {};
+      tokenProcessed.current = false;
 
       await stopAdvertising();
       console.log('BLE advertising stopped');
 
       await disconnect();
-      console.log('BLE listener stopped and cleaned up');
+      console.log('BLE cleanup completed');
     } catch (error) {
       console.error('Error cleaning up BLE:', error);
     }
   }, []);
 
-  const initializeReceiveFlow = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await Promise.all([generateDynamicQR(), startAdvertisingFlow()]);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      console.error('Error initializing receive flow:', error);
-      Alert.alert('Initialization Error', error.message || 'Failed to start receive mode');
-    }
-  }, [generateDynamicQR, startAdvertisingFlow]);
+  // Use useFocusEffect to properly handle screen lifecycle
+  // This prevents cleanup from running immediately on mount in dev mode
+  useFocusEffect(
+    useCallback(() => {
+      let unsubscribeData = null;
+      let isMounted = true;
 
-  // On mount: start advertising + generate QR
-  useEffect(() => {
-    initializeReceiveFlow();
-    return () => {
-      cleanupBle();
-    };
-  }, [initializeReceiveFlow, cleanupBle]);
-
-  const handleTokenReceived = useCallback(async (token, error) => {
-    if (error) {
-      console.error('Token reception error:', error);
-      Alert.alert('Reception Error', 'Failed to receive payment token');
-      return;
-    }
-
-    try {
-      console.log('Token received via BLE, verifying...');
-
-      const result = await applyReceivedPaymentToken(token);
-      if (!result.success) {
-        Alert.alert('Invalid Token', result.message);
-        return;
-      }
-
-      console.log(`Payment credited: ₹${result.amount}, new balance: ₹${result.newBalance}`);
-
-      // Show success alert with payment details
-      Alert.alert(
-        'Payment Received',
-        `Successfully received ₹${result.amount.toFixed(2)}\nFrom: ${token.payer_device_id?.substring(0, 8)}...\nNew balance: ₹${result.newBalance.toFixed(2)}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Navigate back to home to refresh balance display
-              navigation.goBack();
-            },
-          },
-        ]
-      );
-
-      // Send ACK to sender via BLE (implicit through successful processing)
-      console.log('ACK sent to sender (token processed successfully)');
-      
-    } catch (err) {
-      console.error('Error processing received token:', err);
-      Alert.alert('Processing Error', err.message || 'Failed to process payment');
-    }
-  }, [navigation]);
-
-  // After connection is established: start token listener exactly once.
-  useEffect(() => {
-    if (!isListening) return;
-    if (tokenListenerStarted.current) return;
-
-    let cancelled = false;
-    const intervalId = setInterval(async () => {
-      try {
-        const connected = await isConnected();
-        if (cancelled) return;
-
-        if (connected) {
-          clearInterval(intervalId);
-
-          if (tokenListenerStarted.current) return;
-          tokenListenerStarted.current = true;
-
-          // Only start listening once a connection exists.
-          await receiveToken(handleTokenReceived);
+      const initializeReceiveFlow = async () => {
+        try {
+          setIsLoading(true);
+          
+          // Generate QR and start advertising
+          await Promise.all([generateDynamicQR(), startAdvertisingFlow()]);
+          
+          if (!isMounted) return;
+          
+          // Subscribe to native peripheral data events
+          unsubscribeData = onDataReceived(handleBleDataReceived);
+          console.log('Subscribed to BLE data events');
+          
+          setIsLoading(false);
+        } catch (error) {
+          if (!isMounted) return;
+          setIsLoading(false);
+          console.error('Error initializing receive flow:', error);
+          Alert.alert('Initialization Error', error.message || 'Failed to start receive mode');
         }
-      } catch (e) {
-        // Keep polling; transient BLE errors may happen during connect/disconnect.
-      }
-    }, 750);
+      };
 
-    return () => {
-      cancelled = true;
-      clearInterval(intervalId);
-    };
-  }, [isListening, handleTokenReceived]);
+      initializeReceiveFlow();
+
+      // Cleanup on blur/unmount
+      return () => {
+        isMounted = false;
+        console.log('ReceiveScreen losing focus, cleaning up...');
+        
+        if (unsubscribeData) {
+          unsubscribeData();
+        }
+        
+        cleanupBle();
+      };
+    }, [generateDynamicQR, startAdvertisingFlow, handleBleDataReceived, cleanupBle])
+  );
 
   /**
    * Check if QR code has expired (older than 5 minutes)
@@ -258,7 +336,7 @@ const ReceiveScreen = ({navigation}) => {
         style={styles.refreshButton} 
         onPress={handleRefreshQR}
         disabled={isLoading}>
-        <Text style={styles.refreshButtonText}>🔄 Refresh QR</Text>
+        <Text style={styles.refreshButtonText}>�� Refresh QR</Text>
       </TouchableOpacity>
 
       {/* Wallet ID Display */}
